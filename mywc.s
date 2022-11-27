@@ -42,10 +42,11 @@ int main(void)
       endif1:
          if(iChar == '\n') iLineCount++;
          goto loop1;
-   endloop1;
-   
-   if (iInWord) lWordCount++;
+   endloop1:
+      if (!iInWord) goto endif2;
+      lWordCount++;
 
-   printf("%7ld %7ld %7ld\n", lLineCount, lWordCount, lCharCount);
-   return 0;
+      endif2:
+         printf("%7ld %7ld %7ld\n", lLineCount, lWordCount, lCharCount);
+         return 0;
 }
