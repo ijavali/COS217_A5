@@ -1,8 +1,8 @@
-# Status:
-# do the TODOs
-# I think we have to do stuff with registers and addresses
-# like add lWordCount, lWordCount, 1 probably isn't correct
-# . it probably has to be like add x1, x1, 1 or something
+
+
+
+
+
 
 # TODO: make enum
 .equ EOF, -1
