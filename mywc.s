@@ -59,14 +59,14 @@ main:
          # if(! isspace(iChar)) goto else1;
             ldr x0, [w4]
             bl isspace
-            cmp x0 TRUE
+            cmp x0, TRUE
             bne else1
 
             # if(!iInWord) goto endif1;
             # lWordCount++;
             # iInWord = FALSE;
             # goto endif1;
-            cmp w5 TRUE
+            cmp w5, TRUE
             bne endif1
             add x2, x2, 1
             mov w5, FALSE
@@ -75,7 +75,7 @@ main:
       # if(iInWord) goto endif1;
       # iInWord = TRUE;
       else1:
-         cmp w5 TRUE
+         cmp w5, TRUE
          beq endif1
          mov w5, TRUE
 
@@ -83,7 +83,7 @@ main:
       # if(iChar == '\n') iLineCount++;
       # goto loop1;
       endif1:
-         cmp iChar '\n'
+         cmp w4, '\n'
          bne loop1
          add x1, x1, 1
          b loop1
@@ -92,7 +92,7 @@ main:
    # if (!iInWord) goto endif2;
    # lWordCount++;
    endloop1:
-      cmp w5 TRUE
+      cmp w5, TRUE
       bne endif2
       add x2, x2, 1
       
