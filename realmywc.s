@@ -12,13 +12,17 @@
 // Must be a multiple of 16
 .equ MAIN_STACK_BYTECOUNT, 16
 
+  .section .rodata
+format:   
+   .string "%7ld %7ld %7ld\n"
+
 # This is for the global variables
   .section .data
 lLineCount: .quad 0
 lWordCount: .quad 0
 lCharCount: .quad 0
 iChar: .skip 4 
-iInWord: .word FALSE
+iInWord: .word FALSE"
 
   .section .text
   .global .main
@@ -39,44 +43,63 @@ main:
 
 
    loop1:
-      # TODO if((iChar = getchar()) == EOF) goto endloop1;
+      # loop1:
+      # if((iChar = getchar()) == EOF) goto endloop1;
       bl getchar 
-      str w1, [w0]
-      adr x0, iChar
-      str w1, [x0]
+      ldr w1, [w0]
+      #adr x0, iChar
+      str w1, [w4]
       
-
-      cmp iChar EOF
+      cmp w4 EOF
       beq endloop1
 
-      add lCharCount, lCharCount, 1 
+      # lCharCount ++;
+      add x3, x3, 1 
 
-         # TODO if(! isspace(iChar)) goto else1;
-            # TODO call isspace and store the value
-            cmp ___ 1
+         # if(! isspace(iChar)) goto else1;
+            ldr x0, [w4]
+            bl isspace
+            cmp x0 TRUE
             bne else1
 
-            cmp iInWord 1
+            # if(!iInWord) goto endif1;
+            # lWordCount++;
+            # iInWord = FALSE;
+            # goto endif1;
+            cmp w5 TRUE
             bne endif1
-            add lWordCount, lWordCount, 1
+            add x2, x2, 1
+            mov w5, FALSE
             b endif1
+      # else1:
+      # if(iInWord) goto endif1;
+      # iInWord = TRUE;
       else1:
-         cmp iInWord 1
+         cmp w5 TRUE
          beq endif1
-         # TODO: set inWord to TRUE
+         mov w5, TRUE
+
+      # endif1:
+      # if(iChar == '\n') iLineCount++;
+      # goto loop1;
       endif1:
          cmp iChar '\n'
          bne loop1
-         add iLineCount, iLineCount, 1
-         bne loop1
+         add x1, x1, 1
+         b loop1
 
+   # endloop1:
+   # if (!iInWord) goto endif2;
+   # lWordCount++;
    endloop1:
-      cmp iInWord 1
+      cmp w5 TRUE
       bne endif2
-      add lWordCount, lWordCount, 1
+      add x2, x2, 1
       
       endif2:
          # TODO: printf 
+         adr x0, format
+         bl printf
    
    mov w0, 0
    ldr x30, [sp]
