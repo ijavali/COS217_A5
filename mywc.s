@@ -42,9 +42,11 @@ main:
       # loop1:
       # if((iChar = getchar()) == EOF) goto endloop1;
       bl getchar 
+      # ldrsw x0, [x2]
       #adr x0, iChar
       adr x1, iChar
-      str x0, [x1]
+      ldrsw x0, [x1]
+      # str x0, [x1]
       
       cmp x0, EOF
       beq endloop1
