@@ -42,8 +42,6 @@ main:
       # loop1:
       # if((iChar = getchar()) == EOF) goto endloop1;
       bl getchar 
-      # ldrsw x0, [x2]
-      #adr x0, iChar
       adr x1, iChar
       str x0, [x1]
       ldrsw x1, [x1]
@@ -113,9 +111,16 @@ main:
       adr x0, lWordCount
       ldr x1, [x0]
       add x0, x1, 1
+
+      adr x1, lLineCount
+      ldr x1, [x1]
+      adr x2, lWordCount
+      ldr x2, [x2]
+      adr x3, lCharCount
+      ldr x3, [x3]
       
       endif2:
-         # TODO: printf 
+         # TODO: printf("%7ld %7ld %7ld\n", lLineCount, lWordCount, lCharCount);
          adr x0, format
          bl printf
    
