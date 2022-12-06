@@ -31,8 +31,6 @@ main:
       bl getchar 
       adr x1, iChar
       str w0, [x1]
-      
-      
       cmp w0, EOF
       beq endloop1
 
@@ -65,6 +63,7 @@ main:
             str w1, [x0]
             # goto endif1;
             b endif1
+            
       # else1:
       else1:
          # if(iInWord) goto endif1;
