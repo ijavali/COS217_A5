@@ -25,105 +25,98 @@ iChar: .skip 4
 main:
    sub sp, sp, MAIN_STACK_BYTECOUNT
    str x30, [sp]
-
-#   adr x0, lLineCount
-#   ldr x1, [x0]
-#   adr x0, lWordCount
-#   ldr x2, [x0]
-#   adr x0, lCharCount
-#   ldr x3, [x0]
-#   adr x0, iChar
-#   ldr x4, [x0]
-#   adr x0, iInWord
-#   ldr x5, [x0]
-
-
+   # loop1:
    loop1:
-      # loop1:
       # if((iChar = getchar()) == EOF) goto endloop1;
       bl getchar 
       adr x1, iChar
-      str x0, [x1]
-      ldrsw x1, [x1]
+      str w0, [x1]
       
       
-      cmp x1, EOF
+      cmp w0, EOF
       beq endloop1
 
       # lCharCount ++;
       adr x0, lCharCount
       ldr x1, [x0]
-      add x0, x1, 1 
+      add x1, x1, 1 
+      str x1, [x0]
 
          # if(! isspace(iChar)) goto else1;
-            adr x0, iChar
-            ldr x0, [x0]
+            adr x1, iChar
+            ldr w0, [x1]
             bl isspace
-            cmp x0, TRUE
+            cmp w0, TRUE
             bne else1
 
             # if(!iInWord) goto endif1;
-            # lWordCount++;
-            # iInWord = FALSE;
-            # goto endif1;
-            adr x0, iInWord
-            ldr x0, [x0]
-            cmp x0, TRUE
+            adr x1, iInWord
+            ldr w0, [x1]
+            cmp w0, TRUE
             bne endif1
+            # lWordCount++;
             adr x0, lWordCount
             ldr x1, [x0]
-            add x0, x1, 1
+            add x1, x1, 1
+            str x1, [x0]
+            # iInWord = FALSE;
             adr x0, iInWord
-            mov x0, FALSE
+            mov w1, FALSE
+            str w1, [x0]
+            # goto endif1;
             b endif1
       # else1:
-      # if(iInWord) goto endif1;
-      # iInWord = TRUE;
       else1:
-         adr x0, iInWord
-         ldr x0, [x0]
-         cmp x0, TRUE
+         # if(iInWord) goto endif1;
+         adr x1, iInWord
+         ldr w0, [x1]
+         cmp w0, TRUE
          beq endif1
+         # iInWord = TRUE;
          adr x0, iInWord
-         mov x0, TRUE
+         mov w1, TRUE
+         str w1, [x0]
 
       # endif1:
-      # if(iChar != '\n') goto loop1;
-      # lLineCount++;
       endif1:
-         adr x0, iChar
-         ldr x0, [x0]
-         cmp x0, '\n'
+         # if(iChar != '\n') goto loop1;
+         adr x1, iChar
+         ldr w0, [x1]
+         cmp w0, '\n'
          bne loop1
+         # lLineCount++;
          adr x0, lLineCount
          ldr x1, [x0]
-         add x0, x1, 1
+         add x1, x1, 1
+         str x1, [x0]
          b loop1
 
    # endloop1:
-   # if (!iInWord) goto endif2;
-   # lWordCount++;
    endloop1:
-      adr x0, iInWord
-      ldr x0, [x0]
-      cmp x0, TRUE
+   # if (!iInWord) goto endif2;
+      adr x1, iInWord
+      ldr w0, [x1]
+      cmp w0, TRUE
       bne endif2
+      # lWordCount++;
       adr x0, lWordCount
       ldr x1, [x0]
-      add x0, x1, 1
-
-      adr x1, lLineCount
-      ldr x1, [x1]
-      adr x2, lWordCount
-      ldr x2, [x2]
-      adr x3, lCharCount
-      ldr x3, [x3]
+      add x1, x1, 1
+      str x1, [x0]
       
+      #endif2:
       endif2:
-         # TODO: printf("%7ld %7ld %7ld\n", lLineCount, lWordCount, lCharCount);
+         #printf("%7ld %7ld %7ld\n", lLineCount, lWordCount, lCharCount);
          adr x0, format
+         adr x1, lLineCount
+         ldr x1, [x1]
+         adr x2, lWordCount
+         ldr x2, [x2]
+         adr x3, lCharCount
+         ldr x3, [x3]
          bl printf
    
+   #return 0;
    mov w0, 0
    ldr x30, [sp]
    add sp, sp, MAIN_STACK_BYTECOUNT
