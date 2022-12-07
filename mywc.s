@@ -1,4 +1,3 @@
-# TODO: make enum
 .equ EOF, -1
 .equ FALSE, 0
 .equ TRUE, 1
