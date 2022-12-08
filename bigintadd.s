@@ -193,7 +193,7 @@ BigInt_add:
     ldr x0, [sp, LSUMLENGTH_OFFSET]
     mov x1, MAX_DIGITS
     cmp x0, x1
-    bne endif
+    bne endif5
 
     #return FALSE;
     mov w0, FALSE
