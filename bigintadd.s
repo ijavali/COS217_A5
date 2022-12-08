@@ -56,10 +56,10 @@ BigInt_larger:
         str x1, [sp, LLARGER_OFFSET]
     
     endifLarger:
+    # return lLarger;
     ldr x0, [sp, LLARGER_OFFSET]
     ldr x30, [sp]
     add sp, sp, BIGINT_LARGER_BYTECOUNT
-    # return lLarger;
     ret
 
 .global BigInt_add
