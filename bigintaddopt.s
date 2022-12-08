@@ -49,12 +49,12 @@ BigInt_larger:
     cmp x19, x20
     ble else1
         # lLarger = lLength1;
-        mov x21 x19
+        mov x21, x19
         b endifLarger
     # else
     else1:
         # lLarger = lLength2;
-        mov x21 x20
+        mov x21, x20
     
     endifLarger:
     mov x0, x21
