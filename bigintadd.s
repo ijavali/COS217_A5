@@ -36,30 +36,33 @@
 .equ LLENGTH2_OFFSET, 16
 .equ LLARGER_OFFSET, 24
 
+.global BigInt_larger
 
-# static long BigInt_larger(long lLength1, long lLength2)
 BigInt_larger:
     sub sp, sp, BIGINT_LARGER_BYTECOUNT
     str x30, [sp]
     str x0, [sp, LLENGTH1_OFFSET]
     str x1, [sp, LLENGTH2_OFFSET]
 
-    # if (lLength1 > lLength2)
+    # if (lLength1 <= lLength2) goto else1;
     cmp x0, x1
     ble else1
         # lLarger = lLength1;
         str x0, [sp, LLARGER_OFFSET]
+        b endifLarger
     # else
     else1:
         # lLarger = lLength2;
         str x1, [sp, LLARGER_OFFSET]
     
+    endifLarger:
     ldr x0, [sp, LLARGER_OFFSET]
     ldr x30, [sp]
     add sp, sp, BIGINT_LARGER_BYTECOUNT
     # return lLarger;
     ret
 
+.global BigInt_add
 BigInt_add:
     sub sp, sp, BIGINT_ADD_BYTECOUNT
     str x30, [sp]
@@ -136,7 +139,7 @@ BigInt_add:
         ldr x0, [x0, x1, lsl 3]
         ldr x1, [sp, ULSUM_OFFSET]
         cmp x1, x0
-        bge endif2
+        bhs endif2
 
         #ulCarry = 1;
         mov x0, 1
@@ -152,7 +155,7 @@ BigInt_add:
             add x1, x1, x0
             str x1, [sp, ULSUM_OFFSET]
             #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
-            cmp x1, x0
+            bhs x1, x0
             bge endif3
 
             #ulCarry = 1;
@@ -193,7 +196,7 @@ BigInt_add:
     ldr x0, [sp, LSUMLENGTH_OFFSET]
     mov x1, MAX_DIGITS
     cmp x0, x1
-    bne endif
+    bne endif5
 
     #return FALSE;
     mov w0, FALSE
