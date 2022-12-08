@@ -155,8 +155,8 @@ BigInt_add:
             add x1, x1, x0
             str x1, [sp, ULSUM_OFFSET]
             #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
-            bhs x1, x0
-            bge endif3
+            cmp x1, x0
+            bhs endif3
 
             #ulCarry = 1;
             mov x0, 1
