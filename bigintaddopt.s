@@ -243,7 +243,7 @@ BigInt_add:
     endif4:
 
     #oSum->lLength = lSumLength;
-    mov oSum, lSumLength
+    str lSumLength, [oSum]
 
     #return TRUE;
     mov w0, TRUE
