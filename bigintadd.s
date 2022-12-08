@@ -8,10 +8,13 @@
 .equ sizeof(unsigned_long), 8
 .equ LLENGTH_OFFSET, 0
 .equ AULDIGITS_OFFSET, 8
-.equ TOTALSP, 64
+.equ MAIN_STACK_BYTECOUNT, 64
+.equ TRUE, 1
+.equ FALSE, 0
 
 BigInt_add:
-    sub sp, sp, TOTALSP
+    sub sp, sp, MAIN_STACK_BYTECOUNT
+    str x30, [sp]
     str x0, [sp, OADDEND1_OFFSET]
     str x1, [sp, OADDEND2_OFFSET]
     str x2, [sp, OSUM_OFFSET]
@@ -143,7 +146,11 @@ BigInt_add:
     bne endif
 
     #return FALSE;
-    
+    mov w0, FALSE
+    ldr x30, [sp]
+    add sp, sp, MAIN_STACK_BYTECOUNT
+    ret
+
     #endif5:
     endif5:
 
@@ -172,6 +179,10 @@ BigInt_add:
     str x1, [x0]
 
     #return TRUE;
+    mov w0, TRUE
+    ldr x30, [sp]
+    add sp, sp, MAIN_STACK_BYTECOUNT
+    ret
 
     
 
