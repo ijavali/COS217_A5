@@ -1,0 +1,168 @@
+.equ OADDEND1_OFFSET, 8
+.equ OADDEND2_OFFSET, 16
+.equ OSUM_OFFSET, 24
+.equ ULCARRY_OFFSET, 32
+.equ ULSUM_OFFSET, 40
+.equ LINDEX_OFFSET, 48
+.equ LSUMLENGTH_OFFSET, 56
+.equ sizeof(unsigned_long), 8
+.equ LLENGTH_OFFSET, 0
+.equ AULDIGITS_OFFSET, 8
+.equ TOTALSP, 64
+
+BigInt_add:
+    sub sp, sp, TOTALSP
+    str x0, [sp, OADDEND1_OFFSET]
+    str x1, [sp, OADDEND2_OFFSET]
+    str x2, [sp, OSUM_OFFSET]
+
+    #lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength);
+    ldr x0, [sp, OADDEND1_OFFSET]
+    ldr x0, [x0]
+    ldr x1, [sp, OADDEND2_OFFSET]
+    ldr x1, [x1]
+    bl BigInt_larger
+    str x0, [sp, LSUMLENGTH_OFFSET]
+
+    #if (oSum->lLength <= lSumLength) goto endif1;
+    ldr x0, [sp, OSUM_OFFSET]
+    ldr x0, [x0]
+    ldr x1, [sp, LSUMLENGTH_OFFSET]
+    cmp x0, x1
+    ble endif1
+
+    #memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
+    ldr x0, [sp, OSUM_OFFSET]
+    add x0, x0, AULDIGITS_OFFSET
+    mov x1, 0
+    mov x2, MAX_DIGITS
+    mov x3, sizeof(unsigned_long)
+    mul x2, x2, x3
+    bl memset
+
+    #endif1: 
+    endif1:
+
+    #ulCarry = 0;
+    mov x0, 0
+    str x0, [sp, ULCARRY_OFFSET]
+
+    #lIndex = 0;
+    mov x0, 0
+    str x0, [sp, LINDEX_OFFSET]
+
+    #loop: 
+    loop:
+
+        #if (lIndex >= lSumLength) goto loopEnd;
+        ldr x0, [sp, LINDEX_OFFSET]
+        ldr x1, [sp, LSUMLENGTH_OFFSET]
+        cmp x0, x1
+        bge loopEnd
+
+        #ulSum = ulCarry;
+        ldr x0, [sp, ULCARRY_OFFSET]
+        str x0, [sp, ulSum]
+
+        #ulCarry = 0;
+        mov x0, 0
+        str x0, [sp, ULCARRY_OFFSET]
+
+        #ulSum += oAddend1->aulDigits[lIndex];
+        ldr x0, [sp, OADDEND1_OFFSET]
+        add x0, x0, AULDIGITS_OFFSET
+        ldr x1, [sp, LINDEX_OFFSET]
+        ldr x0, [x0, x1, lsl 3]
+        ldr x1, [sp, ULSUM_OFFSET]
+        add x1, x1, x0
+        str x1, [sp, ULSUM_OFFSET]
+
+        #if (ulSum >= oAddend1->aulDigits[lIndex]) goto endif2;
+        ldr x0, [sp, OADDEND1_OFFSET]
+        add x0, x0, AULDIGITS_OFFSET
+        ldr x1, [sp, LINDEX_OFFSET]
+        ldr x0, [x0, x1, lsl 3]
+        ldr x1, [sp, ULSUM_OFFSET]
+        cmp x1, x0
+        bge endif2
+
+        #ulCarry = 1;
+        mov x0, 1
+        str x0, [sp, ULCARRY_OFFSET]
+        #endif2:
+        endif2:
+            #ulSum += oAddend2->aulDigits[lIndex];
+            ldr x0, [sp, OADDEND2_OFFSET]
+            add x0, x0, AULDIGITS_OFFSET
+            ldr x1, [sp, LINDEX_OFFSET]
+            ldr x0, [x0, x1, lsl 3]
+            ldr x1, [sp, ULSUM_OFFSET]
+            add x1, x1, x0
+            str x1, [sp, ULSUM_OFFSET]
+            #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
+            cmp x1, x0
+            bge endif3
+            #ulCarry = 1;
+            mov x0, 1
+            str x0, [sp, ULCARRY_OFFSET]
+        #endif3:
+        endif3:
+            #oSum->aulDigits[lIndex] = ulSum;
+            ldr x0, [sp, OSUM_OFFSET]
+            add x0, x0, AULDIGITS_OFFSET
+            ldr x1, [sp, LINDEX_OFFSET]
+            lsl x1, x1, 3
+            add x0, x0, x1
+            ldr x1, [sp, ULSUM_OFFSET]
+            # str x1, [x0, x2] # *x1 =  *(*x0 + *x2)
+            # str x1, [x0]     # *x1 =  *(x0)
+            str x1, [[x0]]
+            #lIndex++;
+            ldr x0, [sp, LINDEX_OFFSET]
+            mov x1, 1
+            add x0, x0, x1
+            str x0, [sp, LINDEX_OFFSET]
+
+        #goto loop;
+        b loop
+
+    #loopEnd:
+    loopEnd:
+
+    #if (ulCarry != 1) got endif4;
+    ldr x0, [sp, ULCARRY_OFFSET]
+    mov x1, 1
+    cmp x0, x1
+    bne endif4
+
+    #if (lSumLength != MAX_DIGITS) goto endif5;
+    ldr x0, [sp, LSUMLENGTH_OFFSET]
+    mov x1, MAX_DIGITS
+    cmp x0, x1
+    bne endif
+
+    #return FALSE;
+    
+    #endif5:
+    endif5:
+
+    #oSum->aulDigits[lSumLength] = 1;
+
+    #lSumLength++;
+    ldr x0, [sp, LSUMLENGTH_OFFSET]
+    add x0, x0, 1
+    str x0, [sp, LSUMLENGTH_OFFSET]
+
+    #endif4:
+    endif4:
+
+    #oSum->lLength = lSumLength;
+
+    #return TRUE;
+
+    
+
+
+    
+
+    

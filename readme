@@ -78,6 +78,54 @@ particular, what bugs are in your submission?
 ------------------------------------------------------------------------
 What is your mywc program test plan?
 
+mywcboundary1letter.txt: The file contains "a", therefore testing the 
+boundary case where there is only one character, which counts as a word too.
+
+mywcboundary1newline.txt: The file contains a new line, therefore testing
+the boundary case where there is only a new line, with no other characters.
+This counts as a character and new line.
+
+mywcboundary1space.txt: The file contains a space, therefore testing the boundary
+case where there is only one character.
+
+mywcboundaryempty.txt: The file contains nothing, and therefore has zero of everything.
+
+In total, lines 32, 36, 38/39, 44, 45, 49, and 53 need to be checked
+by the statement tests.
+
+mywcstatement1word.txt: The file contains 1 word "test," and tests
+mywc.c for lines 32, 44, 45, and 53, and mywc.s for lines 41, 73, 77, 
+and 104. The while loop is entered because the file is nonempty, so 32
+runs. Since there aren't spaces, the condition for 44 will run. The first
+iteration, the condition on 44 will pass, since the program hasn't entered
+"test" before. Line 45 will run. In later iterations, 44 will fail and 45 won't
+run. Since iInWord is never set FALSE again, 53 runs, passing 52's condition.
+
+mywcstatement1line4words.txt: The file contains 4 words, with no new line:
+"This is a test". It tests mywc.c for lines (only listing those
+that haven't already been tested) 36 and 38/39. It tests mywc.s (only
+listing those that haven't already been tested) for lines 54 and 59/63. 
+Since there are spaces now, right before the program enters "is", 34's condition will be met, 
+so the program will test the condition in 36. Because iInWord is not set FALSE 
+elsewhere, lines 38/39 will run.
+
+mywcstatement2lines4words.txt: The file contains 8 words, with 1 new line:
+"This is a test
+This is a test". 
+It tests mywc.c for line (only listing those
+that haven't already been tested) 49. It tests mywc.s (only
+listing those that haven't already been tested) for line 90. 
+Since there is a new line now, right before the program enters the second "The", 
+48's condition will be met, so 49 will run.
+
+mywcstatementmultiplespaces.txt: The file contains "This  is a test", where
+it is identical to mywcstatement1line4words.txt but with an extra space. This doesn't
+test any explicit line, but tests for the case where the condition on line 34 is called
+but fails since there's a consecutive space, so 38 doesn't run.
+
+mywcstresstest.txt: The file takes a random string of characters from stresstest.c,
+by running ./stresstest >> mywcstresstest.txt. By running high quantities of random characters,\
+words, and lines, it stress tests the program.
 
 
 ------------------------------------------------------------------------

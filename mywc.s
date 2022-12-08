@@ -44,8 +44,8 @@ main:
             adr x1, iChar
             ldr w0, [x1]
             bl isspace
-            cmp w0, TRUE
-            bne else1
+            cmp w0, FALSE
+            beq else1
 
             # if(!iInWord) goto endif1;
             adr x1, iInWord
