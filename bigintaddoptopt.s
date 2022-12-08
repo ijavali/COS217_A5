@@ -88,7 +88,6 @@ BigInt_add:
 
     #ulCarry = 0;
       # mov ulCarry, 0
-    clc
 
     #lIndex = 0;
     mov lIndex, 0
@@ -118,8 +117,10 @@ BigInt_add:
         mov x0, 0
         adds x0, x0, x0
         mov x1, 1
-        sub x0, x1, x0 # now x0 contains flipped C
-        cmp x0, 1 # now c contains x0 contents
+        # now x0 contains flipped C
+        sub x0, x1, x0
+        # now c contains x0 contents 
+        cmp x0, 1 
 
         #ulCarry = 1;
         # mov ulCarry, 1
@@ -136,7 +137,8 @@ BigInt_add:
             add ulSum, ulSum, x0
 
             mov x0, 0 
-            adds x0, x0, x0  # stores C into x0
+            # stores C into x0
+            adds x0, x0, x0  
             cmp x0, 1
             bhs endif6 
                 # if original c / ulCarry = 0, then flip c after doing cmp
@@ -144,8 +146,10 @@ BigInt_add:
                 mov x0, 0
                 adds x0, x0, x0
                 mov x1, 1
-                sub x0, x1, x0 # now x0 contains flipped C
-                cmp x0, 1 # now c contains x0 contents
+                # now x0 contains flipped C
+                sub x0, x1, x0
+                # now c contains x0 contents 
+                cmp x0, 1 
                 b endif3
             endif6:
                 # if original c / ulCarry >= 1 (hence c = 1)
