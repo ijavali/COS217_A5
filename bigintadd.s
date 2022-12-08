@@ -1,3 +1,22 @@
+//----------------------------------------------------------------------
+// bigintadd.s
+// Author: Jack Zhang and Ishaan Javali
+//----------------------------------------------------------------------
+
+        .section .rodata
+
+//----------------------------------------------------------------------
+
+        .section .data
+
+//----------------------------------------------------------------------
+
+        .section .bss
+        
+//----------------------------------------------------------------------
+
+        .section .text
+
 .equ OADDEND1_OFFSET, 8
 .equ OADDEND2_OFFSET, 16
 .equ OSUM_OFFSET, 24
@@ -5,13 +24,45 @@
 .equ ULSUM_OFFSET, 40
 .equ LINDEX_OFFSET, 48
 .equ LSUMLENGTH_OFFSET, 56
-.equ sizeof(unsigned_long), 8
+.equ SIZEOFULONG, 8
 .equ LLENGTH_OFFSET, 0
 .equ AULDIGITS_OFFSET, 8
-.equ TOTALSP, 64
+.equ BIGINT_ADD_BYTECOUNT, 64
+.equ TRUE, 1
+.equ FALSE, 0
+.equ MAX_DIGITS, 32768
+.equ BIGINT_LARGER_BYTECOUNT, 32
+.equ LLENGTH1_OFFSET, 8
+.equ LLENGTH2_OFFSET, 16
+.equ LLARGER_OFFSET, 24
+
+
+# static long BigInt_larger(long lLength1, long lLength2)
+BigInt_larger:
+    sub sp, sp, BIGINT_LARGER_BYTECOUNT
+    str x30, [sp]
+    str x0, [sp, LLENGTH1_OFFSET]
+    str x1, [sp, LLENGTH2_OFFSET]
+    # TODO: cmp x0, x1
+    # long lLarger;
+    # if (lLength1 > lLength2)
+    cmp [sp, LLENGTH1_OFFSET], [sp, LLENGTH2_OFFSET]
+    ble else1
+        # lLarger = lLength1;
+        str x0, [sp, LLARGER_OFFSET]
+    # else
+    else1:
+        # lLarger = lLength2;
+        str x1, [sp, LLARGER_OFFSET]
+    
+    ldr x0, [sp, LLARGER_OFFSET]
+    ldr x30, [sp]
+    add sp, sp, BIGINT_LARGER_BYTECOUNT
+    ret
 
 BigInt_add:
-    sub sp, sp, TOTALSP
+    sub sp, sp, BIGINT_ADD_BYTECOUNT
+    str x30, [sp]
     str x0, [sp, OADDEND1_OFFSET]
     str x1, [sp, OADDEND2_OFFSET]
     str x2, [sp, OSUM_OFFSET]
@@ -26,6 +77,7 @@ BigInt_add:
 
     #if (oSum->lLength <= lSumLength) goto endif1;
     ldr x0, [sp, OSUM_OFFSET]
+    add x0, x0, LLENGTH_OFFSET
     ldr x0, [x0]
     ldr x1, [sp, LSUMLENGTH_OFFSET]
     cmp x0, x1
@@ -36,7 +88,7 @@ BigInt_add:
     add x0, x0, AULDIGITS_OFFSET
     mov x1, 0
     mov x2, MAX_DIGITS
-    mov x3, sizeof(unsigned_long)
+    mov x3, SIZEOFULONG
     mul x2, x2, x3
     bl memset
 
@@ -62,7 +114,7 @@ BigInt_add:
 
         #ulSum = ulCarry;
         ldr x0, [sp, ULCARRY_OFFSET]
-        str x0, [sp, ulSum]
+        str x0, [sp, ULSUM_OFFSET]
 
         #ulCarry = 0;
         mov x0, 0
@@ -102,9 +154,11 @@ BigInt_add:
             #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
             cmp x1, x0
             bge endif3
+
             #ulCarry = 1;
             mov x0, 1
             str x0, [sp, ULCARRY_OFFSET]
+
         #endif3:
         endif3:
             #oSum->aulDigits[lIndex] = ulSum;
@@ -114,9 +168,9 @@ BigInt_add:
             lsl x1, x1, 3
             add x0, x0, x1
             ldr x1, [sp, ULSUM_OFFSET]
-            # str x1, [x0, x2] # *x1 =  *(*x0 + *x2)
-            # str x1, [x0]     # *x1 =  *(x0)
-            str x1, [[x0]]
+            str x1, [x0]
+
+
             #lIndex++;
             ldr x0, [sp, LINDEX_OFFSET]
             mov x1, 1
@@ -142,11 +196,23 @@ BigInt_add:
     bne endif
 
     #return FALSE;
-    
+    mov w0, FALSE
+    ldr x30, [sp]
+    add sp, sp, BIGINT_ADD_BYTECOUNT
+    ret
+
     #endif5:
     endif5:
 
     #oSum->aulDigits[lSumLength] = 1;
+
+    ldr x0, [sp, OSUM_OFFSET]
+    add x0, x0, AULDIGITS_OFFSET
+    ldr x1, [sp, LSUMLENGTH_OFFSET]
+    lsl x1, x1, 3
+    add x0, x0, x1
+    mov x1, 0
+    str x1, [x0]
 
     #lSumLength++;
     ldr x0, [sp, LSUMLENGTH_OFFSET]
@@ -157,8 +223,16 @@ BigInt_add:
     endif4:
 
     #oSum->lLength = lSumLength;
+    ldr x0, [sp, OSUM_OFFSET]
+    add x0, x0, LLENGTH_OFFSET
+    ldr x1, [sp, LSUMLENGTH_OFFSET]
+    str x1, [x0]
 
     #return TRUE;
+    mov w0, TRUE
+    ldr x30, [sp]
+    add sp, sp, BIGINT_ADD_BYTECOUNT
+    ret
 
     
 
