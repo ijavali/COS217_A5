@@ -62,6 +62,9 @@ BigInt_larger:
     add sp, sp, BIGINT_LARGER_BYTECOUNT
     ret
 
+.size   BigInt_larger, (. - BigInt_larger)
+
+
 .global BigInt_add
 BigInt_add:
     sub sp, sp, BIGINT_ADD_BYTECOUNT
@@ -236,3 +239,5 @@ BigInt_add:
     ldr x30, [sp]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
+
+.size   BigInt_add, (. - BigInt_add)
