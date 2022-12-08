@@ -179,7 +179,7 @@ BigInt_add:
     #if (ulCarry == 0) goto endif4;
     mov x0, 0
     adds x0, x0, x0
-    cmp x0, 1
+    cmp x0, 0
     beq endif4
 
     #if (lSumLength != MAX_DIGITS) goto endif5;
