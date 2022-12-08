@@ -43,10 +43,9 @@ BigInt_larger:
     str x30, [sp]
     str x0, [sp, LLENGTH1_OFFSET]
     str x1, [sp, LLENGTH2_OFFSET]
-    # TODO: cmp x0, x1
-    # long lLarger;
+
     # if (lLength1 > lLength2)
-    cmp [sp, LLENGTH1_OFFSET], [sp, LLENGTH2_OFFSET]
+    cmp x0, x1
     ble else1
         # lLarger = lLength1;
         str x0, [sp, LLARGER_OFFSET]
@@ -58,6 +57,7 @@ BigInt_larger:
     ldr x0, [sp, LLARGER_OFFSET]
     ldr x30, [sp]
     add sp, sp, BIGINT_LARGER_BYTECOUNT
+    # return lLarger;
     ret
 
 BigInt_add:
