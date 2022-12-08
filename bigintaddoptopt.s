@@ -99,29 +99,27 @@ BigInt_add:
     bge loopEnd
     loop:
 
-
-        #ulSum = ulCarry;
-          # mov ulSum, ulCarry
+        # ulSum = 0
         mov ulSum, 0
-        adds ulSum, ulSum, ulSum
-
-        #ulCarry = 0;
-          #mov ulCarry, 0
-        clc
-
-        #ulSum += oAddend1->aulDigits[lIndex];
         mov x0, oAddend1
         mov x1, lIndex
         lsl x1, x1, 3
         add x0, x0, AULDIGITS_OFFSET
         add x0, x0, x1
         ldr x0, [x0]
+
+        # ulSum = ulSum + aulDigits[lIndex] + C
         adcs ulSum, ulSum, x0
 
-        #if (ulSum >= oAddend1->aulDigits[lIndex]) goto endif2;
-        # cmp ulSum, x0
-        stc
-        # bhs endif2
+        # ulCarry = 0 not needed because cmp replaces c anyways
+        # if (ulSum >= oAddend1->aulDigits[lIndex]) goto endif2
+        # we flip the result of cmp.
+        cmp ulSum, x0
+        mov x0, 0
+        adds x0, x0, x0
+        mov x1, 1
+        sub x0, x1, x0 # now x0 contains flipped C
+        cmp x0, 1 # now c contains x0 contents
 
         #ulCarry = 1;
         # mov ulCarry, 1
@@ -135,15 +133,23 @@ BigInt_add:
             add x0, x0, AULDIGITS_OFFSET
             add x0, x0, x1
             ldr x0, [x0]
-            adcs ulSum, ulSum, x0
+            add ulSum, ulSum, x0
 
-            #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
-            stc
-            #cmp ulSum, x0
-            #bhs endif3
-
-            #ulCarry = 1;
-            #mov ulCarry, 1
+            mov x0, 0 
+            adds x0, x0, x0  # stores C into x0
+            cmp x0, 1
+            bhs endif6 
+                # if original c / ulCarry = 0, then flip c after doing cmp
+                cmp ulSum, x0
+                mov x0, 0
+                adds x0, x0, x0
+                mov x1, 1
+                sub x0, x1, x0 # now x0 contains flipped C
+                cmp x0, 1 # now c contains x0 contents
+                b endif3
+            endif6:
+                # if original c / ulCarry >= 1 (hence c = 1)
+                # we want to keep c at 1.
 
         #endif3:
         endif3:
@@ -168,9 +174,8 @@ BigInt_add:
 
     #if (ulCarry == 0) goto endif4;
     mov x0, 0
-    mov x1, 0
-    adds x0, x0, x1
-    cmp x0, x1
+    adds x0, x0, x0
+    cmp x0, 0
     beq endif4
 
     #if (lSumLength != MAX_DIGITS) goto endif5;
