@@ -37,45 +37,6 @@
 .equ LLARGER_OFFSET, 24
 
 
-  .global BigInt_larger
-lLength1 .req x19
-lLength2 .req x20
-lLarger .req x21
-
-# static long BigInt_larger(long lLength1, long lLength2)
-BigInt_larger:
-    sub sp, sp, BIGINT_LARGER_BYTECOUNT
-    str x30, [sp]
-
-    str x19, [sp, LLENGTH1_OFFSET]
-    str x20, [sp, LLENGTH2_OFFSET]
-    str x21, [sp, OSUM_OFFSET]
-
-    mov lLength1, x0
-    mov lLength2, x1
-
-    # if (lLength1 <= lLength2) goto else1;
-    cmp lLength1, lLength2
-    ble else1
-        # lLarger = lLength1;
-        mov lLarger, lLength1
-        # goto endifLarger
-        b endifLarger
-    # else
-    else1:
-        # lLarger = lLength2;
-        mov lLarger, lLength2
-    
-    endifLarger:
-    mov x0, lLarger
-    ldr x30, [sp]
-    ldr x19, [sp, LLENGTH1_OFFSET]
-    ldr x20, [sp, LLENGTH2_OFFSET]
-    ldr x21, [sp, OSUM_OFFSET]
-    add sp, sp, BIGINT_LARGER_BYTECOUNT
-    # return lLarger;
-    ret
-
   .global BigInt_add
 oAddend1 .req x19
 oAddend2 .req x20
@@ -104,8 +65,13 @@ BigInt_add:
     #lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength);
     ldr x0, [oAddend1]
     ldr x1, [oAddend2]
-    bl BigInt_larger
-    mov lSumLength, x0
+    cmp x0, x1
+    ble else1
+        mov lSumLength, x0
+        b endifLarger
+    else1:
+        mov lSumLength, x1
+    endifLarger:
 
     #if (oSum->lLength <= lSumLength) goto endif1;
     ldr x0, [oSum]
