@@ -36,7 +36,7 @@
 .equ LLENGTH2_OFFSET, 16
 .equ LLARGER_OFFSET, 24
 
-.global .BigInt_larger
+.global BigInt_larger
 # static long BigInt_larger(long lLength1, long lLength2)
 BigInt_larger:
     sub sp, sp, BIGINT_LARGER_BYTECOUNT
@@ -60,7 +60,7 @@ BigInt_larger:
     # return lLarger;
     ret
 
-.global .BigInt_add
+.global BigInt_add
 BigInt_add:
     sub sp, sp, BIGINT_ADD_BYTECOUNT
     str x30, [sp]
