@@ -57,7 +57,7 @@ BigInt_larger:
     
     ldr x0, [sp, LLARGER_OFFSET]
     ldr x30, [sp]
-    add sp, sp, MAIN_STACK_BYTECOUNT
+    add sp, sp, BIGINT_LARGER_BYTECOUNT
     ret
 
 BigInt_add:
@@ -198,7 +198,7 @@ BigInt_add:
     #return FALSE;
     mov w0, FALSE
     ldr x30, [sp]
-    add sp, sp, MAIN_STACK_BYTECOUNT
+    add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
 
     #endif5:
@@ -231,7 +231,7 @@ BigInt_add:
     #return TRUE;
     mov w0, TRUE
     ldr x30, [sp]
-    add sp, sp, MAIN_STACK_BYTECOUNT
+    add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
 
     
