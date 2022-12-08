@@ -8,13 +8,42 @@
 .equ SIZEOFULONG, 8
 .equ LLENGTH_OFFSET, 0
 .equ AULDIGITS_OFFSET, 8
-.equ MAIN_STACK_BYTECOUNT, 64
+.equ BIGINT_ADD_BYTECOUNT, 64
 .equ TRUE, 1
 .equ FALSE, 0
 .equ MAX_DIGITS, 32768
 
+.equ BIGINT_LARGER_BYTECOUNT, 32
+.equ LLENGTH1_OFFSET, 8
+.equ LLENGTH2_OFFSET, 16
+.equ LLARGER_OFFSET, 24
+
+
+# static long BigInt_larger(long lLength1, long lLength2)
+BigInt_larger:
+    sub sp, sp, BIGINT_LARGER_BYTECOUNT
+    str x30, [sp]
+    str x0, [sp, LLENGTH1_OFFSET]
+    str x1, [sp, LLENGTH2_OFFSET]
+    # TODO: cmp x0, x1
+    # long lLarger;
+    # if (lLength1 > lLength2)
+    cmp [sp, LLENGTH1_OFFSET], [sp, LLENGTH2_OFFSET]
+    ble else1
+        # lLarger = lLength1;
+        str x0, [sp, LLARGER_OFFSET]
+    # else
+    else1:
+        # lLarger = lLength2;
+        str x1, [sp, LLARGER_OFFSET]
+    
+    ldr x0, [sp, LLARGER_OFFSET]
+    ldr x30, [sp]
+    add sp, sp, MAIN_STACK_BYTECOUNT
+    ret
+
 BigInt_add:
-    sub sp, sp, MAIN_STACK_BYTECOUNT
+    sub sp, sp, BIGINT_ADD_BYTECOUNT
     str x30, [sp]
     str x0, [sp, OADDEND1_OFFSET]
     str x1, [sp, OADDEND2_OFFSET]
@@ -107,9 +136,11 @@ BigInt_add:
             #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
             cmp x1, x0
             bge endif3
+
             #ulCarry = 1;
             mov x0, 1
             str x0, [sp, ULCARRY_OFFSET]
+
         #endif3:
         endif3:
             #oSum->aulDigits[lIndex] = ulSum;
