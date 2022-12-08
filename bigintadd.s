@@ -1,3 +1,22 @@
+//----------------------------------------------------------------------
+// bigintadd.s
+// Author: Jack Zhang and Ishaan Javali
+//----------------------------------------------------------------------
+
+        .section .rodata
+
+//----------------------------------------------------------------------
+
+        .section .data
+
+//----------------------------------------------------------------------
+
+        .section .bss
+        
+//----------------------------------------------------------------------
+
+        .section .text
+
 .equ OADDEND1_OFFSET, 8
 .equ OADDEND2_OFFSET, 16
 .equ OSUM_OFFSET, 24
@@ -12,7 +31,6 @@
 .equ TRUE, 1
 .equ FALSE, 0
 .equ MAX_DIGITS, 32768
-
 .equ BIGINT_LARGER_BYTECOUNT, 32
 .equ LLENGTH1_OFFSET, 8
 .equ LLENGTH2_OFFSET, 16
