@@ -37,23 +37,25 @@
 .equ LLARGER_OFFSET, 24
 
 .global BigInt_larger
-# static long BigInt_larger(long lLength1, long lLength2)
+
 BigInt_larger:
     sub sp, sp, BIGINT_LARGER_BYTECOUNT
     str x30, [sp]
     str x0, [sp, LLENGTH1_OFFSET]
     str x1, [sp, LLENGTH2_OFFSET]
 
-    # if (lLength1 > lLength2)
+    # if (lLength1 <= lLength2) goto else1;
     cmp x0, x1
     ble else1
         # lLarger = lLength1;
         str x0, [sp, LLARGER_OFFSET]
+        b endifLarger
     # else
     else1:
         # lLarger = lLength2;
         str x1, [sp, LLARGER_OFFSET]
     
+    endifLarger:
     ldr x0, [sp, LLARGER_OFFSET]
     ldr x30, [sp]
     add sp, sp, BIGINT_LARGER_BYTECOUNT
@@ -234,4 +236,3 @@ BigInt_add:
     ldr x30, [sp]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
-    
