@@ -174,7 +174,7 @@ BigInt_add:
         adds x0, x0, x0
         cmp lIndex, lSumLength
         # if (lIndex >= lSumLength) goto loopEnd
-        bge endloop1
+        bge loopEnd
         cmp x0, 1
         b loop
 
