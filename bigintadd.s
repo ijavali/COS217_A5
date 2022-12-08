@@ -56,14 +56,11 @@ BigInt_larger:
         str x1, [sp, LLARGER_OFFSET]
     
     endifLarger:
-    # return lLarger;
     ldr x0, [sp, LLARGER_OFFSET]
     ldr x30, [sp]
     add sp, sp, BIGINT_LARGER_BYTECOUNT
+    # return lLarger;
     ret
-
-.size   BigInt_larger, (. - BigInt_larger)
-
 
 .global BigInt_add
 BigInt_add:
@@ -142,7 +139,7 @@ BigInt_add:
         ldr x0, [x0, x1, lsl 3]
         ldr x1, [sp, ULSUM_OFFSET]
         cmp x1, x0
-        bge endif2
+        bhs endif2
 
         #ulCarry = 1;
         mov x0, 1
@@ -158,7 +155,7 @@ BigInt_add:
             add x1, x1, x0
             str x1, [sp, ULSUM_OFFSET]
             #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
-            cmp x1, x0
+            bhs x1, x0
             bge endif3
 
             #ulCarry = 1;
@@ -239,5 +236,4 @@ BigInt_add:
     ldr x30, [sp]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
-
-.size   BigInt_add, (. - BigInt_add)
+    
