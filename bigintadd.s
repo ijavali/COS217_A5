@@ -214,7 +214,7 @@ BigInt_add:
     ldr x1, [sp, LSUMLENGTH_OFFSET]
     lsl x1, x1, 3
     add x0, x0, x1
-    mov x1, 0
+    mov x1, 1
     str x1, [x0]
 
     #lSumLength++;
