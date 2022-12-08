@@ -6,9 +6,12 @@
 .equ LINDEX_OFFSET, 48
 .equ LSUMLENGTH_OFFSET, 56
 .equ sizeof(unsigned_long), 8
+.equ LLENGTH_OFFSET, 0
+.equ AULDIGITS_OFFSET, 8
+.equ TOTALSP, 64
 
 BigInt_add:
-    sub sp, sp, 64
+    sub sp, sp, TOTALSP
     str x0, [sp, OADDEND1_OFFSET]
     str x1, [sp, OADDEND2_OFFSET]
     str x2, [sp, OSUM_OFFSET]
@@ -30,7 +33,7 @@ BigInt_add:
 
     #memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
     ldr x0, [sp, OSUM_OFFSET]
-    add x0, x0, 8
+    add x0, x0, AULDIGITS_OFFSET
     mov x1, 0
     mov x2, MAX_DIGITS
     mov x3, sizeof(unsigned_long)
@@ -67,7 +70,7 @@ BigInt_add:
 
         #ulSum += oAddend1->aulDigits[lIndex];
         ldr x0, [sp, OADDEND1_OFFSET]
-        add x0, x0, 8
+        add x0, x0, AULDIGITS_OFFSET
         ldr x1, [sp, LINDEX_OFFSET]
         ldr x0, [x0, x1, lsl 3]
         ldr x1, [sp, ULSUM_OFFSET]
@@ -76,7 +79,7 @@ BigInt_add:
 
         #if (ulSum >= oAddend1->aulDigits[lIndex]) goto endif2;
         ldr x0, [sp, OADDEND1_OFFSET]
-        add x0, x0, 8
+        add x0, x0, AULDIGITS_OFFSET
         ldr x1, [sp, LINDEX_OFFSET]
         ldr x0, [x0, x1, lsl 3]
         ldr x1, [sp, ULSUM_OFFSET]
@@ -90,7 +93,7 @@ BigInt_add:
         endif2:
             #ulSum += oAddend2->aulDigits[lIndex];
             ldr x0, [sp, OADDEND2_OFFSET]
-            add x0, x0, 8
+            add x0, x0, AULDIGITS_OFFSET
             ldr x1, [sp, LINDEX_OFFSET]
             ldr x0, [x0, x1, lsl 3]
             ldr x1, [sp, ULSUM_OFFSET]
@@ -106,7 +109,7 @@ BigInt_add:
         endif3:
             #oSum->aulDigits[lIndex] = ulSum;
             ldr x0, [sp, OSUM_OFFSET]
-            add x0, x0, 8
+            add x0, x0, AULDIGITS_OFFSET
             ldr x1, [sp, LINDEX_OFFSET]
             lsl x1, x1, 3
             add x0, x0, x1
@@ -119,17 +122,42 @@ BigInt_add:
             mov x1, 1
             add x0, x0, x1
             str x0, [sp, LINDEX_OFFSET]
+
         #goto loop;
         b loop
+
     #loopEnd:
+    loopEnd:
+
     #if (ulCarry != 1) got endif4;
+    ldr x0, [sp, ULCARRY_OFFSET]
+    mov x1, 1
+    cmp x0, x1
+    bne endif4
+
     #if (lSumLength != MAX_DIGITS) goto endif5;
+    ldr x0, [sp, LSUMLENGTH_OFFSET]
+    mov x1, MAX_DIGITS
+    cmp x0, x1
+    bne endif
+
     #return FALSE;
-    #goto endif5:
+    
+    #endif5:
+    endif5:
+
     #oSum->aulDigits[lSumLength] = 1;
+
     #lSumLength++;
-    #endif4;
+    ldr x0, [sp, LSUMLENGTH_OFFSET]
+    add x0, x0, 1
+    str x0, [sp, LSUMLENGTH_OFFSET]
+
+    #endif4:
+    endif4:
+
     #oSum->lLength = lSumLength;
+
     #return TRUE;
 
     
