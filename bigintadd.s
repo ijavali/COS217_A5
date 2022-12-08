@@ -5,7 +5,7 @@
 .equ ULSUM_OFFSET, 40
 .equ LINDEX_OFFSET, 48
 .equ LSUMLENGTH_OFFSET, 56
-.equ sizeof(unsigned_long), 8
+.equ SIZEOFULONG, 8
 .equ LLENGTH_OFFSET, 0
 .equ AULDIGITS_OFFSET, 8
 .equ MAIN_STACK_BYTECOUNT, 64
@@ -40,7 +40,7 @@ BigInt_add:
     add x0, x0, AULDIGITS_OFFSET
     mov x1, 0
     mov x2, MAX_DIGITS
-    mov x3, sizeof(unsigned_long)
+    mov x3, SIZEOFULONG
     mul x2, x2, x3
     bl memset
 
@@ -66,7 +66,7 @@ BigInt_add:
 
         #ulSum = ulCarry;
         ldr x0, [sp, ULCARRY_OFFSET]
-        str x0, [sp, ulSum]
+        str x0, [sp, ULSUM_OFFSET]
 
         #ulCarry = 0;
         mov x0, 0
