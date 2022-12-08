@@ -31,10 +31,6 @@
 .equ TRUE, 1
 .equ FALSE, 0
 .equ MAX_DIGITS, 32768
-.equ BIGINT_LARGER_BYTECOUNT, 32
-.equ LLENGTH1_OFFSET, 8
-.equ LLENGTH2_OFFSET, 16
-.equ LLARGER_OFFSET, 24
 
 
   .global BigInt_add
