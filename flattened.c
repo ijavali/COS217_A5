@@ -61,9 +61,9 @@ int BigInt_add(BigInt_T oAddend1, BigInt_T oAddend2, BigInt_T oSum)
    loop: 
       if (lIndex >= lSumLength) goto loopEnd;
       ulSum = ulCarry;
+      ulSum += oAddend1->aulDigits[lIndex];
       ulCarry = 0;
 
-      ulSum += oAddend1->aulDigits[lIndex];
       if (ulSum >= oAddend1->aulDigits[lIndex]) goto endif2;
          ulCarry = 1;
       endif2:
