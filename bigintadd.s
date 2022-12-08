@@ -11,6 +11,7 @@
 .equ MAIN_STACK_BYTECOUNT, 64
 .equ TRUE, 1
 .equ FALSE, 0
+.equ MAX_DIGITS, 32768
 
 BigInt_add:
     sub sp, sp, MAIN_STACK_BYTECOUNT
