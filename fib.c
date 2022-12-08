@@ -238,7 +238,7 @@ static void boundaryTest(void)
 
    {  /* ffffffffffffffff + 1, 1 + ffffffffffffffff */
 
-      BigInt_T oFirst = createBigInt(ULONG_MAX);
+      BigInt_T oFirst = createBigInt(1);
       BigInt_T oSecond = createBigInt(1);
       BigInt_T oSum = createBigInt(0);
 
