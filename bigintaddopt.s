@@ -45,6 +45,9 @@ BigInt_larger:
     str x20, [sp, LLENGTH2_OFFSET]
     str x21, [sp, OSUM_OFFSET]
 
+    mov x19, x0
+    mov x20, x1
+
     # if (lLength1 <= lLength2) goto else1;
     cmp x19, x20
     ble else1
@@ -240,4 +243,3 @@ BigInt_add:
     ldr x30, [sp]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
-    
