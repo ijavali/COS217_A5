@@ -171,7 +171,7 @@ BigInt_add:
         #goto loop;
         #if (lIndex < lSumLength) goto loop;
         mov x0, 0
-        adds, x0, x0, x0
+        adds x0, x0, x0
         cmp lIndex, lSumLength
         # if (lIndex >= lSumLength) goto endloop1
         bge endloop1
