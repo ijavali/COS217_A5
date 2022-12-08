@@ -26,6 +26,7 @@ BigInt_add:
 
     #if (oSum->lLength <= lSumLength) goto endif1;
     ldr x0, [sp, OSUM_OFFSET]
+    add x0, x0, LLENGTH_OFFSET
     ldr x0, [x0]
     ldr x1, [sp, LSUMLENGTH_OFFSET]
     cmp x0, x1
@@ -114,9 +115,9 @@ BigInt_add:
             lsl x1, x1, 3
             add x0, x0, x1
             ldr x1, [sp, ULSUM_OFFSET]
-            # str x1, [x0, x2] # *x1 =  *(*x0 + *x2)
-            # str x1, [x0]     # *x1 =  *(x0)
-            str x1, [[x0]]
+            str x1, [x0]
+
+
             #lIndex++;
             ldr x0, [sp, LINDEX_OFFSET]
             mov x1, 1
@@ -148,6 +149,14 @@ BigInt_add:
 
     #oSum->aulDigits[lSumLength] = 1;
 
+    ldr x0, [sp, OSUM_OFFSET]
+    add x0, x0, AULDIGITS_OFFSET
+    ldr x1, [sp, LSUMLENGTH_OFFSET]
+    lsl x1, x1, 3
+    add x0, x0, x1
+    mov x1, 0
+    str x1, [x0]
+
     #lSumLength++;
     ldr x0, [sp, LSUMLENGTH_OFFSET]
     add x0, x0, 1
@@ -157,6 +166,10 @@ BigInt_add:
     endif4:
 
     #oSum->lLength = lSumLength;
+    ldr x0, [sp, OSUM_OFFSET]
+    add x0, x0, LLENGTH_OFFSET
+    ldr x1, [sp, LSUMLENGTH_OFFSET]
+    str x1, [x0]
 
     #return TRUE;
 
