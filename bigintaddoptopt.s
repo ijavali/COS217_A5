@@ -173,7 +173,7 @@ BigInt_add:
         mov x0, 0
         adds x0, x0, x0
         cmp lIndex, lSumLength
-        # if (lIndex >= lSumLength) goto endloop1
+        # if (lIndex >= lSumLength) goto loopEnd
         bge endloop1
         cmp x0, 1
         b loop
