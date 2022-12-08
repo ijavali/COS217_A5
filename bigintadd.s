@@ -31,7 +31,15 @@ BigInt_larger:
     # ^^^ says 2nd parameter is addr. which is sp + LLARGER_OFFSET
     # [sp, LLARGER_OFFSET] is technically a value (the contents at that memory address)
     # Is the PDF just not comprehensive in the permissible parameters?
+    # for mul, it only shows registers. what if I wanted to do
+    # register x0 * value at sp offset by 8
+    # can I do mul x0, [sp, 8] ? because [sp, 8] dereferences the memory and gives a value
+    # or would I have to do 
+    # adr x1, sp    = put the stack pointer memory location into x1
+    # add x1, x1, 8 = point at memory space 8 bytes ahead
+    # mul x0, x1    because now x0 and x1 are both registers?
     # return lLarger;
+    # can we ever have str x0, x1
     ldr x0, [sp, LLARGER_OFFSET]
     ldr x30, [sp]
     add sp, sp, MAIN_STACK_BYTECOUNT
