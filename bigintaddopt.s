@@ -36,149 +36,164 @@
 .equ LLENGTH2_OFFSET, 16
 .equ LLARGER_OFFSET, 24
 
-.global BigInt_larger
 
+  .global BigInt_larger
+lLength1 .req x19
+lLength2 .req x20
+lLarger .req x21
+
+# static long BigInt_larger(long lLength1, long lLength2)
 BigInt_larger:
     sub sp, sp, BIGINT_LARGER_BYTECOUNT
     str x30, [sp]
-    str x0, [sp, LLENGTH1_OFFSET]
-    str x1, [sp, LLENGTH2_OFFSET]
+
+    # why don't we use x0, x1, x2?
+    # did the programmers say that we will define this to be a good convention
+    # for everyone to follow
+    # also what does it mean by memory? how is this any better/different from what we 
+    # were doing before where we were using the registers to load and stuff.
+    str x19, [sp, LLENGTH1_OFFSET]
+    str x20, [sp, LLENGTH2_OFFSET]
+    str x21, [sp, OSUM_OFFSET]
+
+    mov lLength1, x0
+    mov lLength2, x1
 
     # if (lLength1 <= lLength2) goto else1;
-    cmp x0, x1
+    cmp lLength1, lLength2
     ble else1
         # lLarger = lLength1;
-        str x0, [sp, LLARGER_OFFSET]
+        mov lLarger, lLength1
+        # goto endifLarger
         b endifLarger
     # else
     else1:
         # lLarger = lLength2;
-        str x1, [sp, LLARGER_OFFSET]
+        mov lLarger, lLength2
     
     endifLarger:
-    ldr x0, [sp, LLARGER_OFFSET]
+    mov x0, lLarger
     ldr x30, [sp]
+    ldr x19, [sp, LLENGTH1_OFFSET]
+    ldr x20, [sp, LLENGTH2_OFFSET]
+    ldr x21, [sp, OSUM_OFFSET]
     add sp, sp, BIGINT_LARGER_BYTECOUNT
     # return lLarger;
     ret
 
-.global BigInt_add
+  .global BigInt_add
+oAddend1 .req x19
+oAddend2 .req x20
+oSum .req x21
+ulCarry .req x22
+ulSum .req x23
+lIndex .req x24
+lSumLength .req x25
+
 BigInt_add:
     sub sp, sp, BIGINT_ADD_BYTECOUNT
     str x30, [sp]
-    str x0, [sp, OADDEND1_OFFSET]
-    str x1, [sp, OADDEND2_OFFSET]
-    str x2, [sp, OSUM_OFFSET]
+
+    str x19, [sp, OADDEND1_OFFSET]
+    str x20, [sp, OADDEND2_OFFSET]
+    str x21, [sp, OSUM_OFFSET]
+    str x22, [sp, ULCARRY_OFFSET]
+    str x23, [sp, ULSUM_OFFSET]
+    str x24, [sp, LINDEX_OFFSET]
+    str x25, [sp, LSUMLENGTH_OFFSET]
+
+    mov oAddend1, x0
+    mov oAddend2, x1
+    mov oSum, x2
 
     #lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength);
-    ldr x0, [sp, OADDEND1_OFFSET]
-    ldr x0, [x0]
-    ldr x1, [sp, OADDEND2_OFFSET]
-    ldr x1, [x1]
+    ldr x0, [oAddend1]
+    ldr x1, [oAddend2]
     bl BigInt_larger
-    str x0, [sp, LSUMLENGTH_OFFSET]
+    mov lSumLength, x0
 
     #if (oSum->lLength <= lSumLength) goto endif1;
-    ldr x0, [sp, OSUM_OFFSET]
-    add x0, x0, LLENGTH_OFFSET
-    ldr x0, [x0]
-    ldr x1, [sp, LSUMLENGTH_OFFSET]
-    cmp x0, x1
+    ldr x0, [oSum]
+    cmp x0, lSumLength
     ble endif1
 
     #memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
-    ldr x0, [sp, OSUM_OFFSET]
+    mov x0, oSum
     add x0, x0, AULDIGITS_OFFSET
-    mov x1, 0
+    mov x1, SIZEOFULONG
     mov x2, MAX_DIGITS
-    mov x3, SIZEOFULONG
-    mul x2, x2, x3
+    mul x2, x2, x1
+    mov x1, 0
     bl memset
 
     #endif1: 
     endif1:
 
     #ulCarry = 0;
-    mov x0, 0
-    str x0, [sp, ULCARRY_OFFSET]
+    mov ulCarry, 0
 
     #lIndex = 0;
-    mov x0, 0
-    str x0, [sp, LINDEX_OFFSET]
+    mov lIndex, 0
 
     #loop: 
     loop:
 
         #if (lIndex >= lSumLength) goto loopEnd;
-        ldr x0, [sp, LINDEX_OFFSET]
-        ldr x1, [sp, LSUMLENGTH_OFFSET]
-        cmp x0, x1
+        cmp lIndex, lSumLength
         bge loopEnd
 
         #ulSum = ulCarry;
-        ldr x0, [sp, ULCARRY_OFFSET]
-        str x0, [sp, ULSUM_OFFSET]
+        mov ulSum, ulCarry
 
         #ulCarry = 0;
-        mov x0, 0
-        str x0, [sp, ULCARRY_OFFSET]
+        mov ulCarry, 0
 
         #ulSum += oAddend1->aulDigits[lIndex];
-        ldr x0, [sp, OADDEND1_OFFSET]
+        mov x0, oAddend1
+        mov x1, lIndex
+        lsl x1, x1, 3
         add x0, x0, AULDIGITS_OFFSET
-        ldr x1, [sp, LINDEX_OFFSET]
-        ldr x0, [x0, x1, lsl 3]
-        ldr x1, [sp, ULSUM_OFFSET]
-        add x1, x1, x0
-        str x1, [sp, ULSUM_OFFSET]
+        add x0, x0, x1
+        ldr x0, [x0]
+        add ulSum, ulSum, x0
 
         #if (ulSum >= oAddend1->aulDigits[lIndex]) goto endif2;
-        ldr x0, [sp, OADDEND1_OFFSET]
-        add x0, x0, AULDIGITS_OFFSET
-        ldr x1, [sp, LINDEX_OFFSET]
-        ldr x0, [x0, x1, lsl 3]
-        ldr x1, [sp, ULSUM_OFFSET]
-        cmp x1, x0
+        cmp ulSum, x0
         bhs endif2
 
         #ulCarry = 1;
-        mov x0, 1
-        str x0, [sp, ULCARRY_OFFSET]
+        mov ulCarry, 1
+
         #endif2:
         endif2:
             #ulSum += oAddend2->aulDigits[lIndex];
-            ldr x0, [sp, OADDEND2_OFFSET]
+            mov x0, oAddend2
+            mov x1, lIndex
+            lsl x1, x1, 3
             add x0, x0, AULDIGITS_OFFSET
-            ldr x1, [sp, LINDEX_OFFSET]
-            ldr x0, [x0, x1, lsl 3]
-            ldr x1, [sp, ULSUM_OFFSET]
-            add x1, x1, x0
-            str x1, [sp, ULSUM_OFFSET]
+            add x0, x0, x1
+            ldr x0, [x0]
+            add ulSum, ulSum, x0
+
             #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
-            cmp x1, x0
+            cmp ulSum, x0
             bhs endif3
 
             #ulCarry = 1;
-            mov x0, 1
-            str x0, [sp, ULCARRY_OFFSET]
+            mov ulCarry, 1
 
         #endif3:
         endif3:
             #oSum->aulDigits[lIndex] = ulSum;
-            ldr x0, [sp, OSUM_OFFSET]
+            mov x0, oSum
             add x0, x0, AULDIGITS_OFFSET
-            ldr x1, [sp, LINDEX_OFFSET]
+            mov x1, lIndex
             lsl x1, x1, 3
             add x0, x0, x1
-            ldr x1, [sp, ULSUM_OFFSET]
-            str x1, [x0]
-
+            str ulSum, [x0]
 
             #lIndex++;
-            ldr x0, [sp, LINDEX_OFFSET]
-            mov x1, 1
-            add x0, x0, x1
-            str x0, [sp, LINDEX_OFFSET]
+            add lIndex, lIndex, 1
 
         #goto loop;
         b loop
@@ -186,21 +201,26 @@ BigInt_add:
     #loopEnd:
     loopEnd:
 
-    #if (ulCarry != 1) got endif4;
-    ldr x0, [sp, ULCARRY_OFFSET]
-    mov x1, 1
-    cmp x0, x1
+    #if (ulCarry != 1) goto endif4;
+    mov x0, 1
+    cmp ulCarry, x0
     bne endif4
 
     #if (lSumLength != MAX_DIGITS) goto endif5;
-    ldr x0, [sp, LSUMLENGTH_OFFSET]
-    mov x1, MAX_DIGITS
-    cmp x0, x1
+    mov x0, MAX_DIGITS
+    cmp lSumLength, x0
     bne endif5
 
     #return FALSE;
     mov w0, FALSE
     ldr x30, [sp]
+    ldr x19, [sp, OADDEND1_OFFSET]
+    ldr x20, [sp, OADDEND2_OFFSET]
+    ldr x21, [sp, OSUM_OFFSET]
+    ldr x22, [sp, ULCARRY_OFFSET]
+    ldr x23, [sp, ULSUM_OFFSET]
+    ldr x24, [sp, LINDEX_OFFSET]
+    ldr x25, [sp, LSUMLENGTH_OFFSET]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
 
@@ -208,31 +228,33 @@ BigInt_add:
     endif5:
 
     #oSum->aulDigits[lSumLength] = 1;
-
-    ldr x0, [sp, OSUM_OFFSET]
+    mov x0, oSum
     add x0, x0, AULDIGITS_OFFSET
-    ldr x1, [sp, LSUMLENGTH_OFFSET]
+    mov x1, lSumLength
     lsl x1, x1, 3
     add x0, x0, x1
     mov x1, 1
     str x1, [x0]
 
     #lSumLength++;
-    ldr x0, [sp, LSUMLENGTH_OFFSET]
-    add x0, x0, 1
-    str x0, [sp, LSUMLENGTH_OFFSET]
+    add lSumLength, lSumLength, 1
 
     #endif4:
     endif4:
 
     #oSum->lLength = lSumLength;
-    ldr x0, [sp, OSUM_OFFSET]
-    add x0, x0, LLENGTH_OFFSET
-    ldr x1, [sp, LSUMLENGTH_OFFSET]
-    str x1, [x0]
+    str lSumLength, [oSum]
 
     #return TRUE;
     mov w0, TRUE
     ldr x30, [sp]
+    ldr x19, [sp, OADDEND1_OFFSET]
+    ldr x20, [sp, OADDEND2_OFFSET]
+    ldr x21, [sp, OSUM_OFFSET]
+    ldr x22, [sp, ULCARRY_OFFSET]
+    ldr x23, [sp, ULSUM_OFFSET]
+    ldr x24, [sp, LINDEX_OFFSET]
+    ldr x25, [sp, LSUMLENGTH_OFFSET]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
+    
