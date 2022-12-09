@@ -47,11 +47,6 @@ BigInt_larger:
     sub sp, sp, BIGINT_LARGER_BYTECOUNT
     str x30, [sp]
 
-    # why don't we use x0, x1, x2?
-    # did the programmers say that we will define this to be a good convention
-    # for everyone to follow
-    # also what does it mean by memory? how is this any better/different from what we 
-    # were doing before where we were using the registers to load and stuff.
     str x19, [sp, LLENGTH1_OFFSET]
     str x20, [sp, LLENGTH2_OFFSET]
     str x21, [sp, OSUM_OFFSET]
