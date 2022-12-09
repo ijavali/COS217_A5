@@ -85,9 +85,6 @@ BigInt_add:
     #endif1: 
     endif1:
 
-    #ulCarry = 0;
-    mov ulCarry, 0
-
     #lIndex = 0;
     mov lIndex, 0
 
@@ -95,38 +92,34 @@ BigInt_add:
     #if (lIndex >= lSumLength) goto loopEnd;
     cmp lIndex, lSumLength
     bge loopEnd
+    mov x0, 0
+    adds x0, x0, x0
     loop:
-        #ulSum = ulCarry;
-        mov ulSum, ulCarry
+        # ulSum = 0; 
+        mov ulSum, 0
+        # adds ulSum, ulSum, ulSum
 
-        #ulCarry = 0;
-        mov ulCarry, 0
-
-        #ulSum += oAddend1->aulDigits[lIndex];
+        # x0 = aulDigits[lIndex]
         add x0, oAddend1, AULDIGITS_OFFSET
         ldr x0, [x0, lIndex, lsl 3]
-        add ulSum, ulSum, x0
+        # ulSum = ulSum + aulDigits[lIndex] + C
+        adcs ulSum, ulSum, x0
 
-        #if (ulSum >= oAddend1->aulDigits[lIndex]) goto endif2;
-        cmp ulSum, x0
-        bhs endif2
+        # if (c != 1) goto else2
+        blo else2
 
-        #ulCarry = 1;
-        mov ulCarry, 1
 
-        #endif2:
-        endif2:
-            #ulSum += oAddend2->aulDigits[lIndex];
-            add x0, oAddend2, AULDIGITS_OFFSET
-            ldr x0, [x0, lIndex, lsl 3]
-            add ulSum, ulSum, x0
+        add x0, oAddend2, AULDIGITS_OFFSET
+        ldr x0, [x0, lIndex, lsl 3]
+        # ulSum += oAddend2->ulDigits[lIndex]
+        adds ulSum, ulSum, x0
+        b endif3
 
-            #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
-            cmp ulSum, x0
-            bhs endif3
-
-            #ulCarry = 1;
-            mov ulCarry, 1
+        else2:
+        add x0, oAddend2, AULDIGITS_OFFSET
+        ldr x0, [x0, lIndex, lsl 3]
+        # ulSum += oAddend2->ulDigits[lIndex]
+        adcs ulSum, ulSum, x0
 
         #endif3:
         endif3:
@@ -141,15 +134,37 @@ BigInt_add:
 
         #goto loop;
         #if (lIndex < lSumLength) goto loop;
-        cmp lIndex, lSumLength
-        blt loop
+        bhs else3
+          # c originally == 0
+          cmp lIndex, lSumLength
+          blo else4
+            # lIndex >= lSumLength which implies c is now 1
+            mov x0, 0
+            adds x0, x0, x0
+            b loopEnd
+          else4:
+            # lIndex < lSumLength which implies c is now 0
+            b loop
+        else3:
+          # c originally = 1
+          cmp lIndex, lSumLength
+          blo else5
+            # lIndex >= lSumLength which implies c is now 1
+            b loopEnd
+          else5:
+            # lIndex < lSumLength which implies c is now 0
+            cmp lSumLength, lIndex
+            b loop
+            
+
+        #cmp lIndex, lSumLength
+        #blt loop
 
     #loopEnd:
     loopEnd:
 
     #if (ulCarry != 1) goto endif4;
-    cmp ulCarry, 1
-    bne endif4
+    bhs endif4
 
     #if (lSumLength != MAX_DIGITS) goto endif5;
     cmp lSumLength, MAX_DIGITS
