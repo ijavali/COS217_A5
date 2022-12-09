@@ -75,7 +75,8 @@ BigInt_add:
     ble endif1
 
     #memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
-    add x0, oSum, AULDIGITS_OFFSET
+    mov x0, oSum
+    add x0, x0, AULDIGITS_OFFSET
     mov x1, SIZEOFULONG
     mov x2, MAX_DIGITS
     mul x2, x2, x1
@@ -84,75 +85,72 @@ BigInt_add:
 
     #endif1: 
     endif1:
-
-    #ulCarry = 0;
-    mov ulCarry, 0
-
     #lIndex = 0;
     mov lIndex, 0
 
-    #loop: 
     #if (lIndex >= lSumLength) goto loopEnd;
     cmp lIndex, lSumLength
     bge loopEnd
+    #loop: 
     loop:
-        #ulSum = ulCarry;
-        mov ulSum, ulCarry
-
-        #ulCarry = 0;
-        mov ulCarry, 0
-
-        #ulSum += oAddend1->aulDigits[lIndex];
+        # ulSum = 0
+        mov ulSum, 0
+        adds ulSum, ulSum, ulSum
+        
+        # x0 = aulDigits[lIndex]
         add x0, oAddend1, AULDIGITS_OFFSET
         ldr x0, [x0, lIndex, lsl 3]
-        add ulSum, ulSum, x0
 
-        #if (ulSum >= oAddend1->aulDigits[lIndex]) goto endif2;
-        cmp ulSum, x0
-        bhs endif2
+        # ulSum = ulSum + aulDigits[lIndex] + C
+        adcs ulSum, ulSum, x0
 
-        #ulCarry = 1;
-        mov ulCarry, 1
+        # if (c == 1) goto else2
+        bhs else2
 
-        #endif2:
-        endif2:
-            #ulSum += oAddend2->aulDigits[lIndex];
+        # case c = 0:
             add x0, oAddend2, AULDIGITS_OFFSET
             ldr x0, [x0, lIndex, lsl 3]
-            add ulSum, ulSum, x0
-
-            #if (ulSum >= oAddend2->aulDigits[lIndex]) goto endif3;
-            cmp ulSum, x0
-            bhs endif3
-
-            #ulCarry = 1;
-            mov ulCarry, 1
+            adcs ulSum, ulSum, x0
+            b endif3
+        
+        else2:
+        # case c = 1:
+            add x0, oAddend2, AULDIGITS_OFFSET
+            ldr x0, [x0, lIndex, lsl 3]
+            adds ulSum, ulSum, x0
 
         #endif3:
         endif3:
             #oSum->aulDigits[lIndex] = ulSum;
             add x0, oSum, AULDIGITS_OFFSET
-            lsl x1, lIndex, 3
-            add x0, x0, x1
-            str ulSum, [x0]
+            str ulSum, [x0, lIndex, lsl 3]
 
             #lIndex++;
             add lIndex, lIndex, 1
 
         #goto loop;
         #if (lIndex < lSumLength) goto loop;
+        mov x0, 0
+        adds x0, x0, x0
         cmp lIndex, lSumLength
-        blt loop
+        # if (lIndex >= lSumLength) goto loopEnd
+        bge loopEnd
+        cmp x0, 1
+        b loop
 
     #loopEnd:
     loopEnd:
 
-    #if (ulCarry != 1) goto endif4;
-    cmp ulCarry, 1
-    bne endif4
+    blo endif4
+    #if (ulCarry == 0) goto endif4;
+    #mov x0, 0
+    #adds x0, x0, x0
+    #cmp x0, 0
+    #beq endif4
 
     #if (lSumLength != MAX_DIGITS) goto endif5;
-    cmp lSumLength, MAX_DIGITS
+    mov x0, MAX_DIGITS
+    cmp lSumLength, x0
     bne endif5
 
     #return FALSE;
@@ -172,11 +170,13 @@ BigInt_add:
     endif5:
 
     #oSum->aulDigits[lSumLength] = 1;
-    add x0, oSum, AULDIGITS_OFFSET
-    lsl x1, lSumLength, 3
+    mov x0, oSum
+    add x0, x0, AULDIGITS_OFFSET
+    mov x1, lSumLength
+    lsl x1, x1, 3
     add x0, x0, x1
     mov x1, 1
-    str x1, [x0] 
+    str x1, [x0]
 
     #lSumLength++;
     add lSumLength, lSumLength, 1
