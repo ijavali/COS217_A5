@@ -125,36 +125,14 @@ BigInt_add:
         endif3:
             #oSum->aulDigits[lIndex] = ulSum;
             add x0, oSum, AULDIGITS_OFFSET
-            lsl x1, lIndex, 3
-            add x0, x0, x1
-            str ulSum, [x0]
+            str ulSum, [x0, lIndex, lsl 3]
 
             #lIndex++;
             add lIndex, lIndex, 1
 
-        #goto loop;
         #if (lIndex < lSumLength) goto loop;
-        bhs else3
-          # c originally == 0
-          cmp lIndex, lSumLength
-          blo else4
-            # lIndex >= lSumLength which implies c is now 1
-            mov x0, 0
-            adds x0, x0, x0
-            b loopEnd
-          else4:
-            # lIndex < lSumLength which implies c is now 0
-            b loop
-        else3:
-          # c originally = 1
-          cmp lIndex, lSumLength
-          blo else5
-            # lIndex >= lSumLength which implies c is now 1
-            b loopEnd
-          else5:
-            # lIndex < lSumLength which implies c is now 0
-            cmp lSumLength, lIndex
-            b loop
+        sub x0, lIndex, lSumLength
+        bmi loop
             
 
         #cmp lIndex, lSumLength
