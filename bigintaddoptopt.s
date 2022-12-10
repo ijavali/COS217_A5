@@ -142,7 +142,7 @@ BigInt_add:
     loopEnd:
 
     #if (ulCarry != 1) goto endif4;
-    bhs endif4
+    blo endif4
 
     #if (lSumLength != MAX_DIGITS) goto endif5;
     cmp lSumLength, MAX_DIGITS
