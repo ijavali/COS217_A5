@@ -42,6 +42,12 @@ ulSum .req x23
 lIndex .req x24
 lSumLength .req x25
 
+lLength1 .req x26
+lLength2 .req x27
+lLarger .req x28
+
+.global BigInt_add
+
 BigInt_add:
     sub sp, sp, BIGINT_ADD_BYTECOUNT
     str x30, [sp]
@@ -53,25 +59,31 @@ BigInt_add:
     str x23, [sp, ULSUM_OFFSET]
     str x24, [sp, LINDEX_OFFSET]
     str x25, [sp, LSUMLENGTH_OFFSET]
+    str x26, [sp, 64]
+    str x27, [sp, 72]
+    str x28, [sp, 80]
 
     mov oAddend1, x0
     mov oAddend2, x1
     mov oSum, x2
 
     #lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength);
-    ldr x0, [oAddend1]
-    ldr x1, [oAddend2]
+    ldr x0, [oAddend1, LLENGTH_OFFSET]
+    ldr x1, [oAddend2, LLENGTH_OFFSET]
+    mov lLength1, x0
+    mov lLength2, x1
 
-    cmp x0, x1
+    cmp lLength1, lLength2
     ble else1
-        mov lSumLength, x0
+        mov lLarger, lLength1
         b endifLarger
     else1:
-        mov lSumLength, x1
+        mov lLarger, lLength2
     endifLarger:
 
+    mov lSumLength, lLarger
     #if (oSum->lLength <= lSumLength) goto endif1;
-    ldr x0, [oSum]
+    ldr x0, [oSum, LLENGTH_OFFSET]
     cmp x0, lSumLength
     ble endif1
 
@@ -163,6 +175,9 @@ BigInt_add:
     ldr x23, [sp, ULSUM_OFFSET]
     ldr x24, [sp, LINDEX_OFFSET]
     ldr x25, [sp, LSUMLENGTH_OFFSET]
+    ldr x26, [sp, 64]
+    ldr x27, [sp, 72]
+    ldr x28, [sp, 80]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
 
@@ -181,7 +196,7 @@ BigInt_add:
     endif4:
 
     #oSum->lLength = lSumLength;
-    str lSumLength, [oSum]
+    str lSumLength, [oSum, lLength]
 
     #return TRUE;
     mov w0, TRUE
@@ -193,5 +208,10 @@ BigInt_add:
     ldr x23, [sp, ULSUM_OFFSET]
     ldr x24, [sp, LINDEX_OFFSET]
     ldr x25, [sp, LSUMLENGTH_OFFSET]
+    ldr x26, [sp, 64]
+    ldr x27, [sp, 72]
+    ldr x28, [sp, 80]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
+
+    .size BigInt_add, (. - BigInt_add)
