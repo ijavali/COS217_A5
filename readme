@@ -3,12 +3,12 @@ Assignment 5 readme File
 ------------------------------------------------------------------------
 Student 1: What is your name?
 
-
+Jack Zhang
 
 ------------------------------------------------------------------------
 Student 2: What is your name?
 
-
+Ishaan Javali
 
 ------------------------------------------------------------------------
 Student 1: What authorized sources of information did you use to
@@ -18,6 +18,10 @@ in the file ~cos217/AuthorizedSourcesList ) to this section of the
 readme file, and edit it as appropriate.
 
 
+Lecture Notes and Precept Notes, the course's website, 
+the course's textbooks (King and The Practice of Programming), 
+the Intro COS Lab TA's,
+and the course's current staff members outside of class time through office hours.
 
 ------------------------------------------------------------------------
 Student 2: What authorized sources of information did you use to
@@ -26,6 +30,10 @@ information given in the "Policies" web page (also available on armlab
 in the file ~cos217/AuthorizedSourcesList ) to this section of the
 readme file, and edit it as appropriate.
 
+Lecture Notes and Precept Notes, the course's website, 
+the course's textbooks (King and The Practice of Programming), 
+the Intro COS Lab TA's,
+and the course's current staff members outside of class time through office hours.
 
 
 ------------------------------------------------------------------------
@@ -40,7 +48,7 @@ nature of the interaction, may additionally require the interaction
 being reported to the Committee on Discipline. Write "None" if you used
 no unauthorized sources of information.
 
-
+None
 
 ------------------------------------------------------------------------
 Student 2: What unauthorized sources of information did you use to
@@ -54,25 +62,32 @@ nature of the interaction, may additionally require the interaction
 being reported to the Committee on Discipline. Write "None" if you used
 no unauthorized sources of information.
 
-
+None
 
 ------------------------------------------------------------------------
 Student 1: What is your assessment of the assignment? Was it helpful?
 Was it fun?
 
-
+I thought that it was a fun assignment when I began to understand assembly.
+I wish we had a chance to practice writing (rather than just interpreting)
+assembly before taking on this assignment.
 
 ------------------------------------------------------------------------
 Student 2: What is your assessment of the assignment? Was it helpful?
 Was it fun?
 
-
+I enjoyed it more than A4. I learn by doing so it really helped clarify
+some of the things that had been taught in lecture and precept.
+The challenge portion didn't work for us for some reason.
 
 ------------------------------------------------------------------------
 (optional) What information can you provide about your submission that
 will help your grader to grade it in the most favorable light? In
 particular, what bugs are in your submission?
 
+We attempted the adcs optimization for part 2f), but we did not get it 
+to pass all the test cases. The code that we submitted does not include
+the 3rd optimization.
 
 
 ------------------------------------------------------------------------
@@ -90,12 +105,12 @@ case where there is only one character.
 
 mywcboundaryempty.txt: The file contains nothing, and therefore has zero of everything.
 
-In total, lines 32, 36, 38/39, 44, 45, 49, and 53 need to be checked
+In total, lines 32, 36, 38/39, 44, 45, 49, and 53 in mywc.c need to be checked
 by the statement tests.
 
 mywcstatement1word.txt: The file contains 1 word "test," and tests
-mywc.c for lines 32, 44, 45, and 53, and mywc.s for lines 41, 73, 77, 
-and 104. The while loop is entered because the file is nonempty, so 32
+mywc.c for lines 32, 44, 45, and 53, and mywc.s for lines 47, 79, 83, 
+and 110. The while loop is entered because the file is nonempty, so 32
 runs. Since there aren't spaces, the condition for 44 will run. The first
 iteration, the condition on 44 will pass, since the program hasn't entered
 "test" before. Line 45 will run. In later iterations, 44 will fail and 45 won't
@@ -104,7 +119,7 @@ run. Since iInWord is never set FALSE again, 53 runs, passing 52's condition.
 mywcstatement1line4words.txt: The file contains 4 words, with no new line:
 "This is a test". It tests mywc.c for lines (only listing those
 that haven't already been tested) 36 and 38/39. It tests mywc.s (only
-listing those that haven't already been tested) for lines 54 and 59/63. 
+listing those that haven't already been tested) for lines 60 and 65/69. 
 Since there are spaces now, right before the program enters "is", 34's condition will be met, 
 so the program will test the condition in 36. Because iInWord is not set FALSE 
 elsewhere, lines 38/39 will run.
@@ -114,13 +129,13 @@ mywcstatement2lines4words.txt: The file contains 8 words, with 1 new line:
 This is a test". 
 It tests mywc.c for line (only listing those
 that haven't already been tested) 49. It tests mywc.s (only
-listing those that haven't already been tested) for line 90. 
+listing those that haven't already been tested) for line 96. 
 Since there is a new line now, right before the program enters the second "The", 
 48's condition will be met, so 49 will run.
 
 mywcstatementmultiplespaces.txt: The file contains "This  is a test", where
 it is identical to mywcstatement1line4words.txt but with an extra space. This doesn't
-test any explicit line, but tests for the case where the condition on line 34 is called
+test any explicit line, but tests for the case where the condition on line 34 in mywc.c is called
 but fails since there's a consecutive space, so 38 doesn't run.
 
 mywcstresstest.txt: The file takes a random string of characters from stresstest.c,
@@ -141,7 +156,7 @@ Part 2d:  9.400266 seconds
 Part 2e:  4.920852 seconds
 seconds
 
-Part 2f:  _____ seconds
+Part 2f:  3.398 seconds 
 
 
 
