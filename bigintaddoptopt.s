@@ -61,6 +61,7 @@ BigInt_add:
     #lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength);
     ldr x0, [oAddend1]
     ldr x1, [oAddend2]
+
     cmp x0, x1
     ble else1
         mov lSumLength, x0
@@ -85,15 +86,19 @@ BigInt_add:
     #endif1: 
     endif1:
 
+    mov x0, 0
+    adds lIndex, lIndex, x0
+
+    mov ulSum, 0
     #lIndex = 0;
+    
     mov lIndex, 0
+
 
     #loop: 
     #if (lIndex >= lSumLength) goto loopEnd;
-    cmp lIndex, lSumLength
-    bge loopEnd
-    mov x0, 0
-    adds x0, x0, x0
+    sub x0, lIndex, lSumLength
+    bpl loopEnd
     loop:
         # ulSum = 0; 
         mov ulSum, 0
@@ -130,9 +135,9 @@ BigInt_add:
             #lIndex++;
             add lIndex, lIndex, 1
 
-        #if (lIndex < lSumLength) goto loop;
-        sub x0, lIndex, lSumLength
-        bmi loop
+            #if (lIndex < lSumLength) goto loop;
+            sub x0, lIndex, lSumLength
+            bmi loop
             
 
         #cmp lIndex, lSumLength
@@ -166,10 +171,8 @@ BigInt_add:
 
     #oSum->aulDigits[lSumLength] = 1;
     add x0, oSum, AULDIGITS_OFFSET
-    lsl x1, lSumLength, 3
-    add x0, x0, x1
     mov x1, 1
-    str x1, [x0] 
+    str x1, [x0, lSumLength, lsl 3] 
 
     #lSumLength++;
     add lSumLength, lSumLength, 1
@@ -192,4 +195,3 @@ BigInt_add:
     ldr x25, [sp, LSUMLENGTH_OFFSET]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
-    
