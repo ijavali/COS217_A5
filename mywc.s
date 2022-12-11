@@ -1,4 +1,9 @@
-# TODO: make enum
+//----------------------------------------------------------------------
+// bigintadd.s
+// Author: Jack Zhang and Ishaan Javali
+//----------------------------------------------------------------------
+
+# Constants
 .equ EOF, -1
 .equ FALSE, 0
 .equ TRUE, 1
@@ -10,7 +15,7 @@
 format:   
    .string "%7ld %7ld %7ld\n"
 
-# This is for the global variables
+# Global variables
   .section .data
 lLineCount: .quad 0
 lWordCount: .quad 0
@@ -23,6 +28,7 @@ iChar: .skip 4
   .section .text
   .global main
 main:
+   # Prolog
    sub sp, sp, MAIN_STACK_BYTECOUNT
    str x30, [sp]
    # loop1:
@@ -115,8 +121,9 @@ main:
          ldr x3, [x3]
          bl printf
    
-   #return 0;
+   # Epilog and return 0;
    mov w0, 0
    ldr x30, [sp]
    add sp, sp, MAIN_STACK_BYTECOUNT
-ret
+   ret
+   .size   main, (. - main)

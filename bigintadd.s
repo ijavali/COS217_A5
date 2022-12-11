@@ -17,28 +17,44 @@
 
         .section .text
 
+# Constants:
+.equ TRUE, 1
+.equ FALSE, 0
+.equ SIZEOFULONG, 8
+.equ MAX_DIGITS, 32768
+.equ BIGINT_LARGER_BYTECOUNT, 32
+.equ BIGINT_ADD_BYTECOUNT, 64
+
+# Offsets for BigInt_add
+# Parameter stack offsets:
 .equ OADDEND1_OFFSET, 8
 .equ OADDEND2_OFFSET, 16
 .equ OSUM_OFFSET, 24
+# Local variable stack offsets:
 .equ ULCARRY_OFFSET, 32
 .equ ULSUM_OFFSET, 40
 .equ LINDEX_OFFSET, 48
 .equ LSUMLENGTH_OFFSET, 56
-.equ SIZEOFULONG, 8
+# Field stack offsets:
 .equ LLENGTH_OFFSET, 0
 .equ AULDIGITS_OFFSET, 8
-.equ BIGINT_ADD_BYTECOUNT, 64
-.equ TRUE, 1
-.equ FALSE, 0
-.equ MAX_DIGITS, 32768
-.equ BIGINT_LARGER_BYTECOUNT, 32
+
+# Offsets for BigInt_larger
+# Parameter stack offsets:
 .equ LLENGTH1_OFFSET, 8
 .equ LLENGTH2_OFFSET, 16
+# Local variable stack offsets:
 .equ LLARGER_OFFSET, 24
 
+
+#--------------------------------------------------------------
+# Return the larger of lLength1 and lLength2.
+# static long BigInt_larger(long lLength1, long lLength2)
+#--------------------------------------------------------------
 .global BigInt_larger
 
 BigInt_larger:
+    # Prolog
     sub sp, sp, BIGINT_LARGER_BYTECOUNT
     str x30, [sp]
     str x0, [sp, LLENGTH1_OFFSET]
@@ -59,11 +75,19 @@ BigInt_larger:
     ldr x0, [sp, LLARGER_OFFSET]
     ldr x30, [sp]
     add sp, sp, BIGINT_LARGER_BYTECOUNT
-    # return lLarger;
+    # Epilog and return lLarger;
     ret
+    .size   BigInt_larger, (. - BigInt_larger)
 
+#--------------------------------------------------------------
+# Assign the sum of oAddend1 and oAddend2 to oSum.  oSum should be
+# distinct from oAddend1 and oAddend2.  Return 0 (FALSE) if an
+# overflow occurred, and 1 (TRUE) otherwise.
+# int BigInt_add(BigInt_T oAddend1, BigInt_T oAddend2, BigInt_T oSum)
+#--------------------------------------------------------------
 .global BigInt_add
 BigInt_add:
+    # Prolog
     sub sp, sp, BIGINT_ADD_BYTECOUNT
     str x30, [sp]
     str x0, [sp, OADDEND1_OFFSET]
@@ -198,7 +222,7 @@ BigInt_add:
     cmp x0, x1
     bne endif5
 
-    #return FALSE;
+    # Epilog and return FALSE;
     mov w0, FALSE
     ldr x30, [sp]
     add sp, sp, BIGINT_ADD_BYTECOUNT
@@ -231,8 +255,9 @@ BigInt_add:
     ldr x1, [sp, LSUMLENGTH_OFFSET]
     str x1, [x0]
 
-    #return TRUE;
+    # Epilog and return TRUE;
     mov w0, TRUE
     ldr x30, [sp]
     add sp, sp, BIGINT_ADD_BYTECOUNT
     ret
+    .size   BigInt_add, (. - BigInt_add)
